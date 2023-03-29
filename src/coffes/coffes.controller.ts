@@ -6,18 +6,20 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Res,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 
 @Controller('coffees')
 export class CoffesController {
-  @Get('flavours')
-  findAll(@Res() response) {
-    response.status(200).send({
-      response: 'okok',
-    });
+  @Get()
+  findAll(@Query() paginationQuery) {
+    const { limit, offset } = paginationQuery;
+    return {
+      limit,
+      offset,
+    };
   }
 
   @Get(':id')
