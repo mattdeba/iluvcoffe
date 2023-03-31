@@ -7,21 +7,22 @@ import {
 import { Coffee } from './entities/coffe.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCoffeDto } from './dto/create-coffe.dto';
-import { UpdateCoffeDto } from './dto/update-coffe.dto';
+import { CreateCoffeDto } from './dto/create-coffee.dto';
+import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Flavor } from './entities/flavor.entity';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Injectable()
-export class CoffesService {
+export class CoffeesService {
   constructor(
     @InjectRepository(Coffee)
-    private readonly coffeRepository: Repository<Coffee>,
+    private readonly coffeeRepository: Repository<Coffee>,
     @InjectRepository(Flavor)
     private readonly flavorRepository: Repository<Flavor>,
   ) {}
 
   async findOne(id: string) {
-    const coffee = await this.coffeRepository.findOne({
+    const coffee = await this.coffeeRepository.findOne({
       where: { id: +id },
       relations: {
         flavors: true,
@@ -33,11 +34,14 @@ export class CoffesService {
     return coffee;
   }
 
-  async findAll() {
-    return this.coffeRepository.find({
+  findAll(paginationQuery: PaginationQueryDto) {
+    const { limit, offset } = paginationQuery;
+    return this.coffeeRepository.find({
       relations: {
         flavors: true,
       },
+      skip: offset, // 👈
+      take: limit, // 👈
     });
   }
 
@@ -45,18 +49,18 @@ export class CoffesService {
     const flavors = await Promise.all(
       createCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name)),
     );
-    const coffee = this.coffeRepository.create({
+    const coffee = this.coffeeRepository.create({
       ...createCoffeeDto,
       flavors, //destructuring
     });
-    return this.coffeRepository.save(coffee);
+    return this.coffeeRepository.save(coffee);
   }
 
-  async update(id: string, updateCoffeeDto: UpdateCoffeDto) {
+  async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
     const flavors = await Promise.all(
       updateCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name)),
     );
-    const coffee = await this.coffeRepository.preload({
+    const coffee = await this.coffeeRepository.preload({
       id: +id,
       ...updateCoffeeDto,
       flavors,
@@ -64,12 +68,12 @@ export class CoffesService {
     if (!coffee) {
       throw new NotFoundException(`coffee ${id} not found`);
     }
-    return this.coffeRepository.save(coffee);
+    return this.coffeeRepository.save(coffee);
   }
 
   async remove(id: string) {
     const coffee = await this.findOne(id);
-    return this.coffeRepository.remove(coffee);
+    return this.coffeeRepository.remove(coffee);
   }
 
   private async preloadFlavorByName(name: string): Promise<Flavor> {
