@@ -1,9 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Coffee } from './entities/coffe.entity';
 import * as _ from 'lodash';
+import { COFFEE_BRANDS } from './coffees.constants';
 
 @Injectable()
 export class CoffesService {
+  constructor(@Inject(COFFEE_BRANDS) coffeeBrands: string[]) {
+    console.log(coffeeBrands);
+  }
   private coffees: Coffee[] = [
     {
       id: 1,

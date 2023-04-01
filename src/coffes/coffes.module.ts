@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common';
 import { CoffesController } from './coffes.controller';
 import { CoffesService } from './coffes.service';
 
-class MockCoffeeService {}
-
 @Module({
   controllers: [CoffesController],
   providers: [
+    CoffesService,
     {
-      provide: CoffesService,
-      useValue: new MockCoffeeService(),
+      provide: 'COFFEE_BRANDS',
+      useValue: ['buddy brew', 'nescafe'],
     },
   ],
   exports: [CoffesService],
