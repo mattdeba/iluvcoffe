@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use
+  app.useGlobalFilters(new HttpExceptionFilter()); //Permet d'utiliser le filtre d'exception
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, //permet de filtrer les body des requêtes en ne prenant que les valeurs définies dans le dto.
