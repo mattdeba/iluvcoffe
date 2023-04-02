@@ -4,8 +4,6 @@ import {
   Param,
   Body,
   Post,
-  HttpCode,
-  HttpStatus,
   Patch,
   Delete,
   Query,
@@ -13,7 +11,7 @@ import {
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
-import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Controller('coffees')
 export class CoffeesController {

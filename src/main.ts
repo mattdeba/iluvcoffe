@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, //permet de filtrer les body des requêtes en ne prenant que les valeurs définies dans le dto.

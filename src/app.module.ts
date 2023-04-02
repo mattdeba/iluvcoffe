@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CoffeesModule } from './coffees/coffees.module';
+import { ValidationPipe } from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +22,12 @@ import { CoffeesModule } from './coffees/coffees.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE, // Token spécial issu de nest js package
+      useClass: ValidationPipe, // Permet d'instancier le validation pipe dans le scope du module
+    },
+  ],
 })
 export class AppModule {}
