@@ -9,7 +9,7 @@ import { Coffee } from './entities/coffe.entity';
 import * as _ from 'lodash';
 import { COFFEE_BRANDS } from './coffees.constants';
 
-@Injectable({ scope: Scope.TRANSIENT }) // le coffeService sera instancé 2 fois (par coffee rating module et coffee module)
+@Injectable({ scope: Scope.REQUEST }) // le coffeService sera instancé 2 fois (par coffee rating module et coffee module)
 export class CoffesService {
   constructor(@Inject(COFFEE_BRANDS) coffeeBrands: string[]) {
     console.log('coffe Service instanciated');
