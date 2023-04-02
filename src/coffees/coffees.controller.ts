@@ -18,7 +18,6 @@ import { CreateCoffeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
-@UsePipes(new ValidationPipe()) //passer une configuration spécifique au pipe de validation mais pas optimal
 @Controller('coffees')
 export class CoffeesController {
   constructor(private readonly coffeeService: CoffeesService) {}
@@ -29,6 +28,7 @@ export class CoffeesController {
     return this.coffeeService.findAll(paginationQuery);
   }
 
+  @UsePipes(ValidationPipe)
   @Get(':id')
   findOne(@Param('id') id: string) {
     console.log(typeof id);
