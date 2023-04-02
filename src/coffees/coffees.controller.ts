@@ -28,7 +28,6 @@ export class CoffeesController {
     return this.coffeeService.findAll(paginationQuery);
   }
 
-  @UsePipes(ValidationPipe)
   @Get(':id')
   findOne(@Param('id') id: string) {
     console.log(typeof id);
@@ -42,7 +41,7 @@ export class CoffeesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCoffeDto: UpdateCoffeeDto) {
+  update(@Param('id') id: string, @Body(ValidationPipe) updateCoffeDto: UpdateCoffeeDto) {
     return this.coffeeService.update(id, updateCoffeDto);
   }
 
