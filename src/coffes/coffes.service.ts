@@ -1,12 +1,18 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Scope,
+} from '@nestjs/common';
 import { Coffee } from './entities/coffe.entity';
 import * as _ from 'lodash';
 import { COFFEE_BRANDS } from './coffees.constants';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT }) // le coffeService sera instancé 2 fois (par coffee rating module et coffee module)
 export class CoffesService {
   constructor(@Inject(COFFEE_BRANDS) coffeeBrands: string[]) {
-    console.log(coffeeBrands);
+    console.log('coffe Service instanciated');
   }
   private coffees: Coffee[] = [
     {
