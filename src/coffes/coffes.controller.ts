@@ -9,10 +9,14 @@ import {
   Patch,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CoffesService } from './coffes.service';
 import { CreateCoffeDto } from './dto/create-coffe.dto';
 import { UpdateCoffeDto } from './dto/update-coffe.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Multer } from 'multer';
 
 @Controller('coffees')
 export class CoffesController {
@@ -44,5 +48,11 @@ export class CoffesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.coffeService.remove(id);
+  }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  async importExcel(@UploadedFile() file: Multer.File) {
+    return await this.coffeService.importExcel(file);
   }
 }

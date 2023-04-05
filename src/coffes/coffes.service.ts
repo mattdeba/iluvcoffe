@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Coffee } from './entities/coffe.entity';
 import * as _ from 'lodash';
+import { Multer } from 'multer';
+import { readFile, read, utils } from "xlsx";
 
 @Injectable()
 export class CoffesService {
@@ -46,6 +48,23 @@ export class CoffesService {
     const coffeIndex = this.coffees.findIndex((item) => item.id === +id);
     if (coffeIndex >= 0) {
       this.coffees.splice(coffeIndex, 1);
+    }
+  }
+
+  async importExcel(file: Multer.File) {
+    const buffer = file.buffer;
+    const workbook = read(buffer, { type: 'buffer', cellDates: true });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const jsonData: any[] = utils.sheet_to_json(worksheet, { header: 1 });
+    jsonData.shift();
+
+    for (const row of jsonData) {
+      if (row.length === 3) {
+        const annee = row[1];
+        const exportee = row[2] === 'Oui';
+        console.log(annee, exportee);
+      }
     }
   }
 }
