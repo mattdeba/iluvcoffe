@@ -80,24 +80,18 @@ export class CoffeesService {
       name: 'coffee2',
       flavors, //destructuring
     });
+    const coffees = [coffee1, coffee2]; //add 'test' to have an error
 
     await queryRunner.startTransaction();
-
     try {
-      await Promise.all([
-        queryRunner.manager.save(coffee1),
-        queryRunner.manager.save(coffee2),
-        new Promise((res, rej) => rej('err in promise')),
-      ])
-        .then(() => {
-          queryRunner.commitTransaction();
-        })
-        .catch((err) => err);
-    } catch (err) {
-      console.log(err);
+      for (const coffee of coffees) {
+        await queryRunner.manager.save(coffee); // If an error occurs here, it will immediately go to the catch block
+      }
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      console.error(error);
       await queryRunner.rollbackTransaction();
     } finally {
-      // you need to release query runner which is manually created:
       await queryRunner.release();
     }
   }
