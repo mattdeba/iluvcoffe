@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Coffee } from './entities/coffe.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateCoffeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Flavor } from './entities/flavor.entity';
@@ -19,6 +19,8 @@ export class CoffeesService {
     private readonly coffeeRepository: Repository<Coffee>,
     @InjectRepository(Flavor)
     private readonly flavorRepository: Repository<Flavor>,
+    @InjectDataSource()
+    private dataSource: DataSource,
   ) {}
 
   async findOne(id: string) {
@@ -54,6 +56,42 @@ export class CoffeesService {
       flavors, //destructuring
     });
     return this.coffeeRepository.save(coffee);
+  }
+
+  async createWithTransaction(createCoffeeDto: CreateCoffeDto) {
+    const queryRunner = await this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+    try {
+      const flavors = await Promise.all(
+        createCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name)),
+      );
+      const coffee1 = this.coffeeRepository.create({
+        ...createCoffeeDto,
+        name: 'coffee1',
+        flavors, //destructuring
+      });
+      const coffee2 = this.coffeeRepository.create({
+        ...createCoffeeDto,
+        name: 'coffee2',
+        flavors, //destructuring
+      });
+      const coffeeRepository = queryRunner.manager.getRepository(Coffee);
+      await Promise.all([
+        queryRunner.manager.save(coffee1),
+        queryRunner.manager.save(coffee2),
+        new Promise((res, rej) => rej('error')),
+      ]);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      console.log(error);
+      const res = await queryRunner.rollbackTransaction();
+      console.log(res);
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {

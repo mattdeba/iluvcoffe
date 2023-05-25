@@ -31,6 +31,11 @@ export class CoffeesController {
     return this.coffeeService.findOne('' + id);
   }
 
+  @Post('transaction')
+  createWithTransaction(@Body() createCoffeDto: CreateCoffeDto) {
+    return this.coffeeService.createWithTransaction(createCoffeDto);
+  }
+
   @Post()
   //@HttpCode(HttpStatus.GONE)
   create(@Body() createCoffeeDto: CreateCoffeDto) {
