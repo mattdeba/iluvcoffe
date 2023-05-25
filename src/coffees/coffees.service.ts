@@ -74,9 +74,14 @@ export class CoffeesService {
     const flavors = await Promise.all(
       createCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name)),
     );
-    const coffee1 = queryRunner.manager.getRepository(Coffee).create({
+    const coffee1 = this.coffeeRepository.create({
       ...createCoffeeDto,
       name: 'coffee1',
+      flavors, //destructuring
+    });
+    const coffee2 = this.coffeeRepository.create({
+      ...createCoffeeDto,
+      name: 'coffee2',
       flavors, //destructuring
     });
 
@@ -85,8 +90,12 @@ export class CoffeesService {
 
     try {
       // execute some operations on this transaction:
-      await queryRunner.manager.save(coffee1);
-      await new Promise((res, rej) => rej('err in promise'));
+      await Promise.all([
+        await queryRunner.manager.save(coffee1),
+        await queryRunner.manager.save(coffee2),
+        await new Promise((res, rej) => rej('err in promise')),
+      ]);
+
       // commit transaction now:
       await queryRunner.commitTransaction();
     } catch (err) {
