@@ -59,16 +59,12 @@ export class CoffeesService {
   }
 
   async createWithTransaction(createCoffeeDto: CreateCoffeDto) {
-    // create a new query runner
     const queryRunner = this.dataSource.createQueryRunner();
 
-    // establish real database connection using our new query runner
     await queryRunner.connect();
 
-    // now we can execute any queries on a query runner, for example:
     await queryRunner.query('SELECT * FROM users');
 
-    // we can also access entity manager that works with connection created by a query runner:
     const users = await queryRunner.manager.find(Coffee);
 
     const flavors = await Promise.all(
@@ -85,22 +81,20 @@ export class CoffeesService {
       flavors, //destructuring
     });
 
-    // lets now open a new transaction:
     await queryRunner.startTransaction();
 
     try {
-      // execute some operations on this transaction:
       await Promise.all([
-        await queryRunner.manager.save(coffee1),
-        await queryRunner.manager.save(coffee2),
-        await new Promise((res, rej) => rej('err in promise')),
-      ]);
-
-      // commit transaction now:
-      await queryRunner.commitTransaction();
+        queryRunner.manager.save(coffee1),
+        queryRunner.manager.save(coffee2),
+        new Promise((res, rej) => rej('err in promise')),
+      ])
+        .then(() => {
+          queryRunner.commitTransaction();
+        })
+        .catch((err) => err);
     } catch (err) {
       console.log(err);
-      // since we have errors let's rollback changes we made
       await queryRunner.rollbackTransaction();
     } finally {
       // you need to release query runner which is manually created:
