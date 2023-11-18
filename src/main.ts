@@ -12,6 +12,7 @@ async function bootstrap() {
       //exemple permet de convertir une string issue de la query comme l'id en number.
     }),
   );
+  app.enableCors();
   await app.listen(3000);
 }
 bootstrap();
